@@ -46,6 +46,10 @@ configSchema:
       type: string
       title: "Database Name"
       default: "tt_crm_mcp"
+    DB_PORT:
+      type: string
+      title: "Database Port"
+      default: "3306"
     API_KEYS:
       type: string
       title: "API Keys"
@@ -60,3 +64,11 @@ configSchema:
       title: "Scanner Mode"
       description: "Set to true for initial scan"
       default: true
+    MCP_TRANSPORT:
+      type: string
+      title: "MCP Transport"
+      default: "streamable-http"
+    PORT:
+      type: string
+      title: "Server Port"
+      default: "8080"

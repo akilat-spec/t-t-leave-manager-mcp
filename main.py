@@ -28,22 +28,48 @@ VALID_API_KEYS = set(os.environ.get("API_KEYS", "").split(",")) if REQUIRE_API_K
 DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 SCANNER_MODE = os.environ.get("SCANNER_MODE", "false").lower() == "true"
 
+# Debug output
+print("=" * 50)
+print("🚀 MCP Server Starting Configuration")
+print("=" * 50)
+print(f"🔧 REQUIRE_API_KEY: {REQUIRE_API_KEY}")
+print(f"🔧 SCANNER_MODE: {SCANNER_MODE}")
+print(f"🔧 DEBUG: {DEBUG}")
+print(f"🔧 Valid API Keys: {len(VALID_API_KEYS)}")
+if VALID_API_KEYS:
+    for i, key in enumerate(VALID_API_KEYS):
+        print(f"🔧 API Key {i+1}: {key[:10]}...")
+print("=" * 50)
+
 # -------------------------------
-# API Key Authentication Middleware
+# API Key Authentication Middleware - FIXED VERSION
 # -------------------------------
 class APIKeyMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # Skip auth for health check, root endpoint, and tools discovery
-        if request.url.path in ["/health", "/", "/.well-known/mcp/tools"]:
+        if DEBUG:
+            print(f"🔧 Processing: {request.method} {request.url.path}")
+        
+        # Skip auth for health check, root endpoint, tools discovery, and MCP config
+        public_paths = ["/health", "/", "/.well-known/mcp/tools", "/.well-known/mcp-config"]
+        if request.url.path in public_paths:
+            if DEBUG:
+                print("✅ Skipping auth for public endpoint")
             return await call_next(request)
         
-        # Skip auth during scanner mode
-        if SCANNER_MODE:
+        # Skip auth during scanner mode for ALL MCP requests
+        if SCANNER_MODE and request.url.path == "/mcp":
+            if DEBUG:
+                print("🔍 Scanner mode enabled - allowing MCP access without auth")
             return await call_next(request)
         
         # Skip auth if not required
         if not REQUIRE_API_KEY:
+            if DEBUG:
+                print("🔓 Auth not required - allowing access")
             return await call_next(request)
+        
+        if DEBUG:
+            print("🔐 Checking API key authentication...")
         
         # Extract API key from headers or query parameters
         api_key = None
@@ -52,17 +78,25 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
         auth_header = request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             api_key = auth_header.replace("Bearer ", "")
+            if DEBUG:
+                print(f"📨 Found API key in Authorization header: {api_key[:10]}...")
         
         # Check X-API-Key header
         if not api_key:
             api_key = request.headers.get("X-API-Key")
+            if api_key and DEBUG:
+                print(f"📨 Found API key in X-API-Key header: {api_key[:10]}...")
         
         # Check query parameter
         if not api_key:
             api_key = request.query_params.get("api_key")
+            if api_key and DEBUG:
+                print(f"📨 Found API key in query parameter: {api_key[:10]}...")
         
         # Validate API key
         if not api_key:
+            if DEBUG:
+                print("❌ No API key provided")
             return JSONResponse(
                 status_code=401,
                 content={
@@ -72,6 +106,8 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
             )
         
         if api_key not in VALID_API_KEYS:
+            if DEBUG:
+                print(f"❌ Invalid API key provided: {api_key[:10]}...")
             return JSONResponse(
                 status_code=403,
                 content={
@@ -80,9 +116,8 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
                 }
             )
         
-        # Add API key to request state for logging/audit
-        request.state.api_key = api_key
-        
+        if DEBUG:
+            print("✅ API key validated successfully")
         return await call_next(request)
 
 # -------------------------------
@@ -92,6 +127,27 @@ mcp = FastMCP(
     "LeaveManagerPlus",
     middleware=[Middleware(APIKeyMiddleware)]
 )
+
+# -------------------------------
+# MCP Configuration Schema Endpoint
+# -------------------------------
+@mcp.custom_route("/.well-known/mcp-config", methods=["GET"])
+async def mcp_config_schema(request: Request) -> JSONResponse:
+    """MCP configuration schema endpoint for Smithery discovery"""
+    return JSONResponse({
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "/.well-known/mcp-config",
+        "title": "MCP Session Configuration",
+        "description": "Schema for the MCP endpoint configuration",
+        "type": "object",
+        "properties": {
+            "api_key": {
+                "type": "string",
+                "description": "API key for authentication"
+            }
+        },
+        "x-query-style": "dot+bracket"
+    })
 
 # -------------------------------
 # Public Tools Discovery Endpoint for Smithery Scanner
@@ -304,6 +360,7 @@ async def public_tools_list(request: Request) -> JSONResponse:
     
     return JSONResponse({
         "tools": tools_info,
+        "count": len(tools_info),
         "authentication_required": REQUIRE_API_KEY and not SCANNER_MODE,
         "authentication_methods": [
             "Authorization: Bearer <api_key>",
@@ -643,6 +700,7 @@ def check_auth_status() -> str:
             status += "⚠️ Warning: No API keys configured but authentication is required!\n"
     
     status += f"Scanner Mode: {'✅ Enabled' if SCANNER_MODE else '❌ Disabled'}\n"
+    status += f"Debug Mode: {'✅ Enabled' if DEBUG else '❌ Disabled'}\n"
     status += f"\n**Usage:**\n"
     status += "- Header: `Authorization: Bearer <api_key>`\n"
     status += "- Header: `X-API-Key: <api_key>`\n"
@@ -1268,7 +1326,8 @@ async def root(request: Request) -> JSONResponse:
         "public_endpoints": [
             "GET /health",
             "GET /",
-            "GET /.well-known/mcp/tools"
+            "GET /.well-known/mcp/tools",
+            "GET /.well-known/mcp-config"
         ]
     })
 
@@ -1288,9 +1347,10 @@ if __name__ == "__main__":
     host = os.environ.get("MCP_HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8080"))
 
-    print(f"Starting Leave Manager Plus MCP Server on {host}:{port}")
-    print(f"Transport: {transport}")
-    print(f"API Key Authentication: {'Enabled' if REQUIRE_API_KEY else 'Disabled'}")
-    print(f"Scanner Mode: {'Enabled' if SCANNER_MODE else 'Disabled'}")
+    print(f"🚀 Starting Leave Manager Plus MCP Server on {host}:{port}")
+    print(f"📡 Transport: {transport}")
+    print(f"🔐 API Key Authentication: {'Enabled' if REQUIRE_API_KEY else 'Disabled'}")
+    print(f"🔍 Scanner Mode: {'Enabled' if SCANNER_MODE else 'Disabled'}")
+    print(f"🔧 Debug Mode: {'Enabled' if DEBUG else 'Disabled'}")
     
     mcp.run(transport=transport, host=host, port=port)
