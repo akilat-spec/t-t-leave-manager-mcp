@@ -102,7 +102,7 @@
           "API_KEYS": {
             "type": "string",
             "description": "Comma-separated API keys for authentication",
-            "default": "c1e3bfa97d3425cb986eb382b330bc86d5afe3181e20fe1e2c74587ac3c92b5c"
+            "default": "lm_secure_key_2024_xyz123,backup_key_abc456,test_key_789def"
           },
           "REQUIRE_API_KEY": {
             "type": "boolean",
