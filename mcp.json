@@ -56,7 +56,6 @@
 //   ]
 // }
 
-
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-16/server.schema.json",
   "name": "ai.smithery/akilat-spec-tt-leave-manager-mcp",
@@ -77,42 +76,52 @@
           "DB_HOST": {
             "type": "string",
             "default": "103.174.10.72",
-            "description": "Database host address"
+            "description": "MySQL database host address"
           },
           "DB_USER": {
             "type": "string",
             "default": "tt_crm_mcp",
-            "description": "Database username"
+            "description": "MySQL database username"
           },
           "DB_PASSWORD": {
             "type": "string",
             "default": "F*PAtqhu@sg2w58n",
-            "description": "Database password"
+            "description": "MySQL database password"
           },
           "DB_NAME": {
             "type": "string",
             "default": "tt_crm_mcp",
-            "description": "Database name"
+            "description": "MySQL database name"
           },
           "DB_PORT": {
             "type": "string",
             "default": "3306",
-            "description": "Database port"
+            "description": "MySQL database port"
           },
           "API_KEYS": {
             "type": "string",
-            "description": "Comma-separated API keys for authentication",
-            "default": "lm_secure_key_2024_xyz123,backup_key_abc456,test_key_789def"
+            "description": "Comma-separated secure API keys for authentication. Generate with: openssl rand -hex 32",
+            "default": "c1e3bfa97d3425cb986eb382b330bc86d5afe3181e20fe1e2c74587ac3c92b5c"
           },
           "REQUIRE_API_KEY": {
             "type": "boolean",
-            "description": "Enable API key authentication",
+            "description": "Enable API key authentication for security",
             "default": true
           },
           "SCANNER_MODE": {
             "type": "boolean",
-            "description": "Temporarily disable authentication for scanning",
-            "default": false
+            "description": "Temporarily disable authentication for Smithery scanning. Set to true for initial scan, then false for production.",
+            "default": true
+          },
+          "MCP_TRANSPORT": {
+            "type": "string",
+            "description": "MCP transport protocol",
+            "default": "streamable-http"
+          },
+          "PORT": {
+            "type": "string",
+            "description": "Server port number",
+            "default": "8080"
           }
         }
       }
