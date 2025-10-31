@@ -1,0 +1,67 @@
+name: tt-leave-manager-mcp
+description: Secure employee management system with API key authentication for company data protection.
+version: 1.16.1
+
+# Build configuration
+build:
+  type: docker
+  dockerfile: Dockerfile
+
+# Start command configuration  
+startCommand:
+  type: http
+  transport: streamable-http
+  command: ["python", "main.py"]
+  port: 8080
+  path: "/mcp"
+
+# Environment variables schema
+configSchema:
+  type: object
+  required: ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "API_KEYS"]
+  properties:
+    DB_HOST:
+      type: string
+      title: "Database Host"
+      description: "MySQL database host address"
+      default: "103.174.10.72"
+    DB_USER:
+      type: string
+      title: "Database User"
+      description: "MySQL database username"
+      default: "tt_crm_mcp"
+    DB_PASSWORD:
+      type: string
+      title: "Database Password"
+      description: "MySQL database password"
+      default: "F*PAtqhu@sg2w58n"
+    DB_NAME:
+      type: string
+      title: "Database Name"
+      description: "MySQL database name"
+      default: "tt_crm_mcp"
+    DB_PORT:
+      type: string
+      title: "Database Port"
+      description: "MySQL database port"
+      default: "3306"
+    API_KEYS:
+      type: string
+      title: "API Keys"
+      description: "Comma-separated API keys for authentication (generate with: openssl rand -hex 32)"
+      default: "fab683d791d639cb07969d76f228e7dbd4589d5054b732ca77cc31b7b9be421b"
+    REQUIRE_API_KEY:
+      type: boolean
+      title: "Require API Key"
+      description: "Enable API key authentication"
+      default: true
+    MCP_TRANSPORT:
+      type: string
+      title: "MCP Transport"
+      description: "Transport protocol for MCP server"
+      default: "streamable-http"
+    PORT:
+      type: string
+      title: "Server Port"
+      description: "Port number for the MCP server"
+      default: "8080"
