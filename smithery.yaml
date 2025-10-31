@@ -2,12 +2,10 @@ name: tt-leave-manager-mcp
 description: Secure employee management system with API key authentication for company data protection.
 version: 1.16.1
 
-# Build configuration
 build:
   type: docker
   dockerfile: Dockerfile
 
-# Start command configuration  
 startCommand:
   type: http
   transport: streamable-http
@@ -15,7 +13,19 @@ startCommand:
   port: 8080
   path: "/mcp"
 
-# Environment variables schema
+# Scanner configuration for tool discovery
+scanner:
+  discoveryUrl: "/.well-known/mcp/tools"
+  authentication:
+    type: api_key
+    methods:
+      - type: bearer
+        header: Authorization
+      - type: header  
+        name: X-API-Key
+      - type: query
+        name: api_key
+
 configSchema:
   type: object
   required: ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "API_KEYS"]
@@ -49,12 +59,17 @@ configSchema:
       type: string
       title: "API Keys"
       description: "Comma-separated API keys for authentication (generate with: openssl rand -hex 32)"
-      default: "fab683d791d639cb07969d76f228e7dbd4589d5054b732ca77cc31b7b9be421b"
+      default: "c1e3bfa97d3425cb986eb382b330bc86d5afe3181e20fe1e2c74587ac3c92b5c"
     REQUIRE_API_KEY:
       type: boolean
       title: "Require API Key"
       description: "Enable API key authentication"
       default: true
+    SCANNER_MODE:
+      type: boolean
+      title: "Scanner Mode"
+      description: "Temporarily disable authentication for Smithery scanning"
+      default: false
     MCP_TRANSPORT:
       type: string
       title: "MCP Transport"

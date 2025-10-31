@@ -1,3 +1,62 @@
+// {
+//   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-16/server.schema.json",
+//   "name": "ai.smithery/akilat-spec-tt-leave-manager-mcp",
+//   "description": "Secure employee management system with API key authentication for company data protection.",
+//   "version": "1.16.1",
+//   "repository": {
+//     "url": "https://github.com/akilat-spec/tt-leave-manager-mcp",
+//     "source": "github"
+//   },
+//   "remotes": [
+//     {
+//       "type": "streamable-http",
+//       "url": "https://three-flowers-itch.loca.lt",
+//       "configSchema": {
+//         "type": "object",
+//         "required": ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "API_KEYS"],
+//         "properties": {
+//           "DB_HOST": {
+//             "type": "string",
+//             "default": "103.174.10.72",
+//             "description": "Database host address"
+//           },
+//           "DB_USER": {
+//             "type": "string",
+//             "default": "tt_crm_mcp",
+//             "description": "Database username"
+//           },
+//           "DB_PASSWORD": {
+//             "type": "string",
+//             "default": "F*PAtqhu@sg2w58n",
+//             "description": "Database password"
+//           },
+//           "DB_NAME": {
+//             "type": "string",
+//             "default": "tt_crm_mcp",
+//             "description": "Database name"
+//           },
+//           "DB_PORT": {
+//             "type": "string",
+//             "default": "3306",
+//             "description": "Database port"
+//           },
+//           "API_KEYS": {
+//             "type": "string",
+//             "description": "Comma-separated API keys for authentication",
+//             "default": "c1e3bfa97d3425cb986eb382b330bc86d5afe3181e20fe1e2c74587ac3c92b5c"
+//           },
+//           "REQUIRE_API_KEY": {
+//             "type": "boolean",
+//             "description": "Enable API key authentication",
+//             "default": true
+//           }
+//         }
+//       }
+//     }
+//   ]
+// }
+
+
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-16/server.schema.json",
   "name": "ai.smithery/akilat-spec-tt-leave-manager-mcp",
@@ -10,7 +69,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://three-flowers-itch.loca.lt",
+      "url": "https://server.smithery.ai/@akilat-spec/t-t-leave-manager-mcp",
       "configSchema": {
         "type": "object",
         "required": ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "API_KEYS"],
@@ -43,12 +102,17 @@
           "API_KEYS": {
             "type": "string",
             "description": "Comma-separated API keys for authentication",
-            "default": "your-secure-api-key-here"
+            "default": "c1e3bfa97d3425cb986eb382b330bc86d5afe3181e20fe1e2c74587ac3c92b5c"
           },
           "REQUIRE_API_KEY": {
             "type": "boolean",
             "description": "Enable API key authentication",
             "default": true
+          },
+          "SCANNER_MODE": {
+            "type": "boolean",
+            "description": "Temporarily disable authentication for scanning",
+            "default": false
           }
         }
       }
