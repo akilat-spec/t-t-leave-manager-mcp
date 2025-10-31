@@ -1,0 +1,6 @@
+fastmcp>=2.0
+mysql-connector-python
+python-levenshtein
+uvicorn
+starlette
+python-multipart>=0.0.6
